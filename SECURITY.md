@@ -2,15 +2,14 @@
 
 ## Supported Versions
 
-| Version | Supported |
-| --- | --- |
-| Latest release | Yes |
-| Earlier releases | No |
+Security fixes are provided for the latest released version of Bundle Buddy.
 
 ## Reporting a Vulnerability
 
-Please do not report security vulnerabilities in public GitHub issues.
+Do not report security vulnerabilities in a public issue. Use the repository's
+**Report a vulnerability** option to send a private report. If that option is
+not available, open an issue requesting a private reporting channel without
+including vulnerability details.
 
-Use GitHub's **Private vulnerability reporting** option from the repository's **Security** tab. Include the affected Bundle Buddy version, a clear description of the issue, steps to reproduce it, and any suggested mitigation.
-
-Sherrod Software will acknowledge reports as promptly as practical, investigate the issue, and coordinate a fix before public disclosure when appropriate.
+When reporting a vulnerability, include a clear description, reproduction
+steps, potential impact, and any suggested mitigation.
