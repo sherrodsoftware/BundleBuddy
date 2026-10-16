@@ -1,8 +1,16 @@
 # Bundle Buddy
 
+<p align="center">
+  <img src="assets/bundle-buddy-icon.png" width="128" alt="Bundle Buddy app icon: a bundle of sticks tied with a teal ribbon">
+</p>
+
 Bundle Buddy is a quick, native macOS utility for finding an app’s bundle identifier—without opening Terminal.
 
 Search your installed applications, select one, and copy its identifier when you are ready. It is particularly handy for device-management, policy, scripting, and support workflows.
+
+<p align="center">
+  <img src="assets/bundle-buddy-screenshot.png" width="900" alt="Bundle Buddy showing Boxing Day's bundle identifier">
+</p>
 
 ## Features
 
