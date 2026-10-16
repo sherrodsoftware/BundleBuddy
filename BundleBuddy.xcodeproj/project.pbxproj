@@ -1,0 +1,228 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		A101 /* BundleBuddyApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A201 /* BundleBuddyApp.swift */; };
+		A102 /* AppCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = A202 /* AppCatalog.swift */; };
+		A103 /* BundleBuddyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A203 /* BundleBuddyView.swift */; };
+		A104 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A204 /* Assets.xcassets */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		A201 /* BundleBuddyApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BundleBuddyApp.swift; sourceTree = "<group>"; };
+		A202 /* AppCatalog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppCatalog.swift; sourceTree = "<group>"; };
+		A203 /* BundleBuddyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BundleBuddyView.swift; sourceTree = "<group>"; };
+		A204 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		A205 /* Bundle Buddy.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Bundle Buddy.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		A301 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		A401 = {
+			isa = PBXGroup;
+			children = (
+				A402 /* BundleBuddy */,
+				A403 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		A402 /* BundleBuddy */ = {
+			isa = PBXGroup;
+			children = (
+				A201 /* BundleBuddyApp.swift */,
+				A202 /* AppCatalog.swift */,
+				A203 /* BundleBuddyView.swift */,
+				A204 /* Assets.xcassets */,
+			);
+			path = BundleBuddy;
+			sourceTree = "<group>";
+		};
+		A403 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				A205 /* Bundle Buddy.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		A501 /* Bundle Buddy */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A601 /* Build configuration list for PBXNativeTarget "Bundle Buddy" */;
+			buildPhases = (
+				A701 /* Sources */,
+				A301 /* Frameworks */,
+				A702 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "Bundle Buddy";
+			productName = "Bundle Buddy";
+			productReference = A205 /* Bundle Buddy.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		A801 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1600;
+				LastUpgradeCheck = 1600;
+				TargetAttributes = {
+					A501 = {
+						CreatedOnToolsVersion = 16.0;
+					};
+				};
+			};
+			buildConfigurationList = A602 /* Build configuration list for PBXProject "BundleBuddy" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = A401;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = A403 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				A501 /* Bundle Buddy */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		A702 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A104 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		A701 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A101 /* BundleBuddyApp.swift in Sources */,
+				A102 /* AppCatalog.swift in Sources */,
+				A103 /* BundleBuddyView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		A901 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				MACOSX_DEPLOYMENT_TARGET = 15.0;
+				SDKROOT = macosx;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		A902 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				MACOSX_DEPLOYMENT_TARGET = 15.0;
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		A903 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 2;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "Bundle Buddy";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
+				MARKETING_VERSION = 2026.10.16;
+				PRODUCT_BUNDLE_IDENTIFIER = com.sherrodsoftware.BundleBuddy;
+				PRODUCT_NAME = "Bundle Buddy";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_STRICT_CONCURRENCY = complete;
+			};
+			name = Debug;
+		};
+		A904 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 2;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "Bundle Buddy";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
+				MARKETING_VERSION = 2026.10.16;
+				PRODUCT_BUNDLE_IDENTIFIER = com.sherrodsoftware.BundleBuddy;
+				PRODUCT_NAME = "Bundle Buddy";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_STRICT_CONCURRENCY = complete;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		A601 /* Build configuration list for PBXNativeTarget "Bundle Buddy" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A903 /* Debug */,
+				A904 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A602 /* Build configuration list for PBXProject "BundleBuddy" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A901 /* Debug */,
+				A902 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = A801 /* Project object */;
+}
