@@ -3,9 +3,10 @@
   Bundle Buddy
 </h1>
 
-A small open-source macOS utility for quickly finding an installed app's bundle
-identifier. Search the apps on your Mac, select one, and copy its identifier
-only when you are ready—no Terminal required.
+A small open-source macOS utility for quickly inspecting an installed app's
+identity and code-signing details. Search the apps on your Mac, then review
+and copy its version, bundle identifier, designated code requirement, signing
+identity, and Team ID—no Terminal required.
 
 <p align="center">
   <img src="docs/images/bundle-buddy-main-window.png" alt="Bundle Buddy main window" width="720" />
@@ -19,14 +20,16 @@ only when you are ready—no Terminal required.
    information is easy to identify at a glance.
 3. **Searches by application name or bundle identifier**, making it quick to
    locate a specific app in a long list.
-4. **Shows the selected identifier prominently** in a selectable,
-   monospaced field for clear review before copying.
-5. **Copies only on request.** Click **Copy Bundle Identifier** to place the
-   identifier on the clipboard; selecting an app never overwrites it.
-6. **Reveals or opens the selected app** directly from Bundle Buddy.
-7. **Keeps Utility apps hidden by default** to keep the list focused. Turn on
+4. **Shows the selected app's version and build number** in a selectable,
+   monospaced field.
+5. **Reads the designated code requirement, signing identity, and Team ID**
+   directly from macOS's code-signing services.
+6. **Copies only on request.** Each available detail has its own Copy button;
+   selecting an app never overwrites the clipboard.
+7. **Reveals or opens the selected app** directly from Bundle Buddy.
+8. **Keeps Utility apps hidden by default** to keep the list focused. Turn on
    **Show Utility Apps** whenever you need to include them.
-8. **Works from either the main window or the menu bar**, so the app is close
+9. **Works from either the main window or the menu bar**, so the app is close
    at hand during policy, scripting, support, or device-management work.
 
 ## Requirements

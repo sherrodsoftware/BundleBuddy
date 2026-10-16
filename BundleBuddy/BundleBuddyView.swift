@@ -6,7 +6,6 @@ struct BundleBuddyView: View {
     @AppStorage("showUtilityApps") private var showUtilityApps = false
     @State private var searchText = ""
     @State private var selection: InstalledApp?
-    @State private var copied = false
     let compact: Bool
 
     init(compact: Bool = false) {
@@ -41,7 +40,7 @@ struct BundleBuddyView: View {
             .navigationSplitViewColumnWidth(min: compact ? 240 : 280, ideal: compact ? 300 : 340)
         } detail: {
             if let selection {
-                DetailView(app: selection, copied: $copied, copy: copy)
+                DetailView(app: selection)
             } else {
                 ContentUnavailableView(
                     "Choose an Application",
@@ -63,19 +62,9 @@ struct BundleBuddyView: View {
                 }
             }
         }
-        .onChange(of: selection) { _, _ in
-            copied = false
+        .onChange(of: catalog.apps) { _, _ in
+            if selection == nil, let first = filteredApps.first { selection = first }
         }
-        .onChange(of: catalog.apps) { _, apps in
-            if selection == nil, let first = apps.first { selection = first }
-        }
-    }
-
-    private func copy(_ app: InstalledApp) {
-        guard let identifier = app.bundleIdentifier else { return }
-        NSPasteboard.general.clearContents()
-        NSPasteboard.general.setString(identifier, forType: .string)
-        copied = true
     }
 
     private func isUtilityApp(_ app: InstalledApp) -> Bool {
@@ -107,58 +96,154 @@ private struct AppRow: View {
 
 private struct DetailView: View {
     let app: InstalledApp
-    @Binding var copied: Bool
-    let copy: (InstalledApp) -> Void
+    @State private var signingInfo: CodeSigningInfo?
+    @State private var isLoadingSigningInfo = false
+    @State private var copiedField: String?
 
     var body: some View {
-        VStack(spacing: 22) {
-            Image(nsImage: NSWorkspace.shared.icon(forFile: app.url.path))
-                .resizable()
-                .frame(width: 96, height: 96)
-                .shadow(radius: 5, y: 2)
+        ScrollView {
+            VStack(spacing: 22) {
+                Image(nsImage: NSWorkspace.shared.icon(forFile: app.url.path))
+                    .resizable()
+                    .frame(width: 96, height: 96)
+                    .shadow(radius: 5, y: 2)
 
-            Text(app.name)
-                .font(.title2.weight(.semibold))
+                VStack(spacing: 5) {
+                    Text(app.name)
+                        .font(.title2.weight(.semibold))
+                    Text(app.versionDescription.map { "Version \($0)" } ?? "Version unavailable")
+                        .foregroundStyle(.secondary)
+                }
 
-            VStack(alignment: .leading, spacing: 8) {
-                Text("Bundle Identifier")
-                    .font(.headline)
-                Text(app.bundleIdentifier ?? "This application does not declare a bundle identifier.")
-                    .font(.system(.body, design: .monospaced))
+                VStack(spacing: 14) {
+                    DetailField(
+                        title: "Version",
+                        value: app.versionDescription,
+                        unavailableMessage: "This application does not declare a version.",
+                        fieldID: "version",
+                        copiedField: $copiedField
+                    )
+
+                    DetailField(
+                        title: "Bundle Identifier",
+                        value: app.bundleIdentifier,
+                        unavailableMessage: "This application does not declare a bundle identifier.",
+                        fieldID: "bundleIdentifier",
+                        copiedField: $copiedField
+                    )
+
+                    if isLoadingSigningInfo {
+                        HStack(spacing: 8) {
+                            ProgressView()
+                            Text("Reading code signature…")
+                                .foregroundStyle(.secondary)
+                        }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                    } else {
+                        DetailField(
+                            title: "Code Requirement",
+                            value: signingInfo?.requirement,
+                            unavailableMessage: "No designated code requirement is available.",
+                            fieldID: "codeRequirement",
+                            copiedField: $copiedField
+                        )
+
+                        DetailField(
+                            title: "Signing Identity",
+                            value: signingInfo?.signingIdentity,
+                            unavailableMessage: "No signing identity is available.",
+                            fieldID: "signingIdentity",
+                            copiedField: $copiedField
+                        )
+
+                        DetailField(
+                            title: "Team ID",
+                            value: signingInfo?.teamIdentifier,
+                            unavailableMessage: "No Team ID is available.",
+                            fieldID: "teamIdentifier",
+                            copiedField: $copiedField
+                        )
+                    }
+                }
+                .frame(maxWidth: 560)
+
+                HStack {
+                    Button {
+                        NSWorkspace.shared.activateFileViewerSelecting([app.url])
+                    } label: {
+                        Label("Reveal", systemImage: "folder")
+                    }
+
+                    Button {
+                        NSWorkspace.shared.openApplication(at: app.url, configuration: .init())
+                    } label: {
+                        Label("Open", systemImage: "arrow.up.forward.app")
+                    }
+                }
+
+                Text(app.url.path)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
                     .textSelection(.enabled)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(14)
-                    .background(.quaternary, in: RoundedRectangle(cornerRadius: 10))
+                    .lineLimit(2)
             }
-            .frame(maxWidth: 460)
-
-            HStack {
-                Button { copy(app) } label: {
-                    Label(copied ? "Copied" : "Copy Bundle Identifier", systemImage: copied ? "checkmark" : "doc.on.doc")
-                }
-                .buttonStyle(.borderedProminent)
-                .disabled(app.bundleIdentifier == nil)
-
-                Button {
-                    NSWorkspace.shared.activateFileViewerSelecting([app.url])
-                } label: {
-                    Label("Reveal", systemImage: "folder")
-                }
-
-                Button {
-                    NSWorkspace.shared.openApplication(at: app.url, configuration: .init())
-                } label: {
-                    Label("Open", systemImage: "arrow.up.forward.app")
-                }
-            }
-
-            Spacer()
-            Text(app.url.path)
-                .font(.caption)
-                .foregroundStyle(.secondary)
-                .textSelection(.enabled)
-                .lineLimit(2)
+            .padding(28)
         }
-        .padding(28)
+        .task(id: app.id) {
+            isLoadingSigningInfo = true
+            signingInfo = nil
+            let result = await Task.detached(priority: .userInitiated) {
+                CodeSigningInfo.read(from: app.url)
+            }.value
+            guard !Task.isCancelled else { return }
+            signingInfo = result
+            isLoadingSigningInfo = false
+        }
+    }
+}
+
+private struct DetailField: View {
+    let title: String
+    let value: String?
+    let unavailableMessage: String
+    let fieldID: String
+    @Binding var copiedField: String?
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                Text(title)
+                    .font(.headline)
+                Spacer()
+                copyButton
+                    .buttonStyle(.bordered)
+            }
+
+            Text(value ?? unavailableMessage)
+                .font(.system(.body, design: .monospaced))
+                .foregroundStyle(value == nil ? .secondary : .primary)
+                .textSelection(.enabled)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(14)
+                .background(.quaternary, in: RoundedRectangle(cornerRadius: 10))
+        }
+    }
+
+    private func copyValue() {
+        guard let value else { return }
+        NSPasteboard.general.clearContents()
+        NSPasteboard.general.setString(value, forType: .string)
+        copiedField = fieldID
+    }
+
+    private var copyButton: some View {
+        Button { copyValue() } label: {
+            Label(
+                copiedField == fieldID ? "Copied" : "Copy",
+                systemImage: copiedField == fieldID ? "checkmark" : "doc.on.doc"
+            )
+        }
+        .controlSize(.small)
+        .disabled(value == nil)
     }
 }
