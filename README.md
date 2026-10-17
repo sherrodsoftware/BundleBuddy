@@ -1,5 +1,5 @@
 <h1>
-  <img src="docs/images/bundle-buddy-icon.png" alt="Bundle Buddy icon" width="48" />
+  <img src="docs/images/bundle-buddy-icon-2026.10.16.png" alt="Bundle Buddy icon" width="48" />
   Bundle Buddy
 </h1>
 
