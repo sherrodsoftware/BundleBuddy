@@ -1,5 +1,6 @@
 import AppKit
 import SwiftUI
+import UniformTypeIdentifiers
 
 struct BundleReportView: View {
     @EnvironmentObject private var catalog: AppCatalog
@@ -103,17 +104,7 @@ private struct DetailView: View {
     var body: some View {
         ScrollView {
             VStack(spacing: 22) {
-                Image(nsImage: NSWorkspace.shared.icon(forFile: app.url.path))
-                    .resizable()
-                    .frame(width: 96, height: 96)
-                    .shadow(radius: 5, y: 2)
-
-                VStack(spacing: 5) {
-                    Text(app.name)
-                        .font(.title2.weight(.semibold))
-                    Text(app.versionDescription.map { "Version \($0)" } ?? "Version unavailable")
-                        .foregroundStyle(.secondary)
-                }
+                AppIdentityCard(app: app)
 
                 VStack(spacing: 14) {
                     DetailField(
@@ -129,6 +120,22 @@ private struct DetailView: View {
                         value: app.bundleIdentifier,
                         unavailableMessage: "This application does not declare a bundle identifier.",
                         fieldID: "bundleIdentifier",
+                        copiedField: $copiedField
+                    )
+
+                    DetailField(
+                        title: "App Path",
+                        value: app.url.path,
+                        unavailableMessage: "The application path is unavailable.",
+                        fieldID: "appPath",
+                        copiedField: $copiedField
+                    )
+
+                    DetailField(
+                        title: "App Icon Path",
+                        value: app.iconFileURL?.path,
+                        unavailableMessage: "This application does not provide a standalone icon file.",
+                        fieldID: "appIconPath",
                         copiedField: $copiedField
                     )
 
@@ -198,6 +205,106 @@ private struct DetailView: View {
             guard !Task.isCancelled else { return }
             signingInfo = result
             isLoadingSigningInfo = false
+        }
+    }
+}
+
+private struct AppIdentityCard: View {
+    let app: InstalledApp
+
+    private let columns = [
+        GridItem(.adaptive(minimum: 170), alignment: .leading)
+    ]
+
+    var body: some View {
+        HStack(alignment: .top, spacing: 18) {
+            VStack(spacing: 8) {
+                Image(nsImage: NSWorkspace.shared.icon(forFile: app.url.path))
+                    .resizable()
+                    .frame(width: 80, height: 80)
+                    .shadow(radius: 4, y: 2)
+
+                Button {
+                    exportIcon()
+                } label: {
+                    Label("Export Icon…", systemImage: "square.and.arrow.down")
+                }
+                .controlSize(.small)
+            }
+
+            VStack(alignment: .leading, spacing: 14) {
+                Text(app.name)
+                    .font(.title2.weight(.semibold))
+                    .lineLimit(2)
+
+                LazyVGrid(columns: columns, alignment: .leading, spacing: 12) {
+                    MetadataItem(title: "Architecture", value: app.architectures ?? "Unknown")
+                    MetadataItem(title: "Minimum macOS", value: app.minimumOSVersion.map { "macOS \($0)" } ?? "Not declared")
+                    MetadataItem(title: "Source", value: app.sourceDescription)
+                    MetadataItem(title: "Quarantine", value: app.isQuarantined ? "Present" : "Cleared")
+                    MetadataItem(title: "Installed", value: formatted(app.installationDate))
+                    MetadataItem(title: "Modified", value: formatted(app.modificationDate))
+                }
+
+                if let copyright = app.copyright, !copyright.isEmpty {
+                    MetadataItem(title: "Copyright", value: copyright)
+                }
+            }
+        }
+        .frame(maxWidth: 560, alignment: .leading)
+        .padding(18)
+        .background(.quaternary, in: RoundedRectangle(cornerRadius: 14))
+    }
+
+    private func formatted(_ date: Date?) -> String {
+        guard let date else { return "Unavailable" }
+        return date.formatted(date: .abbreviated, time: .shortened)
+    }
+
+    private func exportIcon() {
+        let savePanel = NSSavePanel()
+        savePanel.title = "Export App Icon"
+        savePanel.nameFieldStringValue = "\(app.name).png"
+        savePanel.allowedContentTypes = [.png]
+        savePanel.canCreateDirectories = true
+
+        guard savePanel.runModal() == .OK, let destinationURL = savePanel.url else { return }
+
+        do {
+            let manager = FileManager.default
+            if manager.fileExists(atPath: destinationURL.path) {
+                try manager.removeItem(at: destinationURL)
+            }
+            let image = NSWorkspace.shared.icon(forFile: app.url.path)
+            guard let tiffData = image.tiffRepresentation,
+                  let bitmap = NSBitmapImageRep(data: tiffData),
+                  let pngData = bitmap.representation(using: .png, properties: [:]) else {
+                throw NSError(
+                    domain: "BundleReport",
+                    code: 1,
+                    userInfo: [NSLocalizedDescriptionKey: "The app icon could not be converted to PNG."]
+                )
+            }
+            try pngData.write(to: destinationURL)
+        } catch {
+            NSAlert(error: error).runModal()
+        }
+    }
+}
+
+private struct MetadataItem: View {
+    let title: String
+    let value: String
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 3) {
+            Text(title)
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(.secondary)
+            Text(value)
+                .font(.subheadline)
+                .textSelection(.enabled)
+                .fixedSize(horizontal: false, vertical: true)
         }
     }
 }
