@@ -1,19 +1,19 @@
 import SwiftUI
 
 @main
-struct BundleBuddyApp: App {
+struct BundleReportApp: App {
     @StateObject private var catalog = AppCatalog()
 
     var body: some Scene {
         WindowGroup {
-            BundleBuddyView()
+            BundleReportView()
                 .environmentObject(catalog)
                 .frame(minWidth: 660, minHeight: 500)
         }
         .defaultSize(width: 760, height: 580)
 
-        MenuBarExtra("Bundle Buddy", systemImage: "shippingbox.fill") {
-            BundleBuddyView(compact: true)
+        MenuBarExtra("Bundle Report", systemImage: "shippingbox.fill") {
+            BundleReportView(compact: true)
                 .environmentObject(catalog)
                 .frame(width: 460, height: 540)
         }

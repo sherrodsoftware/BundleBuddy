@@ -1,7 +1,7 @@
 import AppKit
 import SwiftUI
 
-struct BundleBuddyView: View {
+struct BundleReportView: View {
     @EnvironmentObject private var catalog: AppCatalog
     @AppStorage("showUtilityApps") private var showUtilityApps = false
     @State private var searchText = ""

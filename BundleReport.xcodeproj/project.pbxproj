@@ -7,18 +7,18 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		A101 /* BundleBuddyApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A201 /* BundleBuddyApp.swift */; };
+		A101 /* BundleReportApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A201 /* BundleReportApp.swift */; };
 		A102 /* AppCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = A202 /* AppCatalog.swift */; };
-		A103 /* BundleBuddyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A203 /* BundleBuddyView.swift */; };
+		A103 /* BundleReportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A203 /* BundleReportView.swift */; };
 		A104 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A204 /* Assets.xcassets */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		A201 /* BundleBuddyApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BundleBuddyApp.swift; sourceTree = "<group>"; };
+		A201 /* BundleReportApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BundleReportApp.swift; sourceTree = "<group>"; };
 		A202 /* AppCatalog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppCatalog.swift; sourceTree = "<group>"; };
-		A203 /* BundleBuddyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BundleBuddyView.swift; sourceTree = "<group>"; };
+		A203 /* BundleReportView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BundleReportView.swift; sourceTree = "<group>"; };
 		A204 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		A205 /* Bundle Buddy.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Bundle Buddy.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		A205 /* Bundle Report.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Bundle Report.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -35,26 +35,26 @@
 		A401 = {
 			isa = PBXGroup;
 			children = (
-				A402 /* BundleBuddy */,
+				A402 /* BundleReport */,
 				A403 /* Products */,
 			);
 			sourceTree = "<group>";
 		};
-		A402 /* BundleBuddy */ = {
+		A402 /* BundleReport */ = {
 			isa = PBXGroup;
 			children = (
-				A201 /* BundleBuddyApp.swift */,
+				A201 /* BundleReportApp.swift */,
 				A202 /* AppCatalog.swift */,
-				A203 /* BundleBuddyView.swift */,
+				A203 /* BundleReportView.swift */,
 				A204 /* Assets.xcassets */,
 			);
-			path = BundleBuddy;
+			path = BundleReport;
 			sourceTree = "<group>";
 		};
 		A403 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				A205 /* Bundle Buddy.app */,
+				A205 /* Bundle Report.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -62,9 +62,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		A501 /* Bundle Buddy */ = {
+		A501 /* Bundle Report */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = A601 /* Build configuration list for PBXNativeTarget "Bundle Buddy" */;
+			buildConfigurationList = A601 /* Build configuration list for PBXNativeTarget "Bundle Report" */;
 			buildPhases = (
 				A701 /* Sources */,
 				A301 /* Frameworks */,
@@ -74,9 +74,9 @@
 			);
 			dependencies = (
 			);
-			name = "Bundle Buddy";
-			productName = "Bundle Buddy";
-			productReference = A205 /* Bundle Buddy.app */;
+			name = "Bundle Report";
+			productName = "Bundle Report";
+			productReference = A205 /* Bundle Report.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -94,7 +94,7 @@
 					};
 				};
 			};
-			buildConfigurationList = A602 /* Build configuration list for PBXProject "BundleBuddy" */;
+			buildConfigurationList = A602 /* Build configuration list for PBXProject "BundleReport" */;
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -107,7 +107,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				A501 /* Bundle Buddy */,
+				A501 /* Bundle Report */,
 			);
 		};
 /* End PBXProject section */
@@ -128,9 +128,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A101 /* BundleBuddyApp.swift in Sources */,
+				A101 /* BundleReportApp.swift in Sources */,
 				A102 /* AppCatalog.swift in Sources */,
-				A103 /* BundleBuddyView.swift in Sources */,
+				A103 /* BundleReportView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -182,11 +182,11 @@
 				ENABLE_RESOURCE_ACCESS_LOCATION = NO;
 				ENABLE_RESOURCE_ACCESS_PHOTO_LIBRARY = NO;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = "Bundle Buddy";
+				INFOPLIST_KEY_CFBundleDisplayName = "Bundle Report";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				MARKETING_VERSION = 2026.10.16;
-				PRODUCT_BUNDLE_IDENTIFIER = com.sherrodsoftware.BundleBuddy;
-				PRODUCT_NAME = "Bundle Buddy";
+				PRODUCT_BUNDLE_IDENTIFIER = com.sherrodsoftware.BundleReport;
+				PRODUCT_NAME = "Bundle Report";
 				RUNTIME_EXCEPTION_ALLOW_DYLD_ENVIRONMENT_VARIABLES = NO;
 				RUNTIME_EXCEPTION_ALLOW_JIT = NO;
 				RUNTIME_EXCEPTION_ALLOW_UNSIGNED_EXECUTABLE_MEMORY = NO;
@@ -215,11 +215,11 @@
 				ENABLE_RESOURCE_ACCESS_LOCATION = NO;
 				ENABLE_RESOURCE_ACCESS_PHOTO_LIBRARY = NO;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = "Bundle Buddy";
+				INFOPLIST_KEY_CFBundleDisplayName = "Bundle Report";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				MARKETING_VERSION = 2026.10.16;
-				PRODUCT_BUNDLE_IDENTIFIER = com.sherrodsoftware.BundleBuddy;
-				PRODUCT_NAME = "Bundle Buddy";
+				PRODUCT_BUNDLE_IDENTIFIER = com.sherrodsoftware.BundleReport;
+				PRODUCT_NAME = "Bundle Report";
 				RUNTIME_EXCEPTION_ALLOW_DYLD_ENVIRONMENT_VARIABLES = NO;
 				RUNTIME_EXCEPTION_ALLOW_JIT = NO;
 				RUNTIME_EXCEPTION_ALLOW_UNSIGNED_EXECUTABLE_MEMORY = NO;
@@ -234,7 +234,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		A601 /* Build configuration list for PBXNativeTarget "Bundle Buddy" */ = {
+		A601 /* Build configuration list for PBXNativeTarget "Bundle Report" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				A903 /* Debug */,
@@ -243,7 +243,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		A602 /* Build configuration list for PBXProject "BundleBuddy" */ = {
+		A602 /* Build configuration list for PBXProject "BundleReport" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				A901 /* Debug */,

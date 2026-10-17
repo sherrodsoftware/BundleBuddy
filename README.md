@@ -1,6 +1,6 @@
 <h1>
-  <img src="docs/images/bundle-buddy-icon-2026.10.16.png" alt="Bundle Buddy icon" width="48" />
-  Bundle Buddy
+  <img src="docs/images/bundle-buddy-icon-2026.10.16.png" alt="Bundle Report icon" width="48" />
+  Bundle Report
 </h1>
 
 A small open-source macOS utility for quickly inspecting an installed app's
@@ -9,7 +9,7 @@ and copy its version, bundle identifier, designated code requirement, signing
 identity, and Team ID—no Terminal required.
 
 <p align="center">
-  <img src="docs/images/bundle-buddy-main-window.png" alt="Bundle Buddy main window" width="720" />
+  <img src="docs/images/bundle-buddy-main-window.png" alt="Bundle Report main window" width="720" />
 </p>
 
 ## What it does
@@ -26,7 +26,7 @@ identity, and Team ID—no Terminal required.
    directly from macOS's code-signing services.
 6. **Copies only on request.** Each available detail has its own Copy button;
    selecting an app never overwrites the clipboard.
-7. **Reveals or opens the selected app** directly from Bundle Buddy.
+7. **Reveals or opens the selected app** directly from Bundle Report.
 8. **Keeps Utility apps hidden by default** to keep the list focused. Turn on
    **Show Utility Apps** whenever you need to include them.
 9. **Works from either the main window or the menu bar**, so the app is close
@@ -42,4 +42,4 @@ Please see [SECURITY.md](SECURITY.md) for responsible vulnerability reporting.
 
 ## License
 
-Bundle Buddy is available under the [MIT License](LICENSE.md).
+Bundle Report is available under the [MIT License](LICENSE.md).

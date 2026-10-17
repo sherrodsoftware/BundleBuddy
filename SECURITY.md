@@ -2,7 +2,7 @@
 
 ## Supported Versions
 
-Security fixes are provided for the latest released version of Bundle Buddy.
+Security fixes are provided for the latest released version of Bundle Report.
 
 ## Reporting a Vulnerability
 
