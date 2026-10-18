@@ -4,12 +4,11 @@
 </h1>
 
 A small open-source macOS utility for quickly inspecting an installed app's
-identity and code-signing details. Search the apps on your Mac, then review
-and copy its version, bundle identifier, designated code requirement, signing
-identity, and Team ID—no Terminal required.
+identity, deployment details, and code-signing information. Search the apps on
+your Mac, then review and copy the details you need—no Terminal required.
 
 <p align="center">
-  <img src="docs/images/bundle-buddy-main-window.png" alt="Bundle Report main window" width="720" />
+  <img src="docs/images/bundle-report-main-window.png" alt="Bundle Report main window" width="720" />
 </p>
 
 ## What it does
@@ -20,16 +19,19 @@ identity, and Team ID—no Terminal required.
    information is easy to identify at a glance.
 3. **Searches by application name or bundle identifier**, making it quick to
    locate a specific app in a long list.
-4. **Shows the selected app's version and build number** in a selectable,
-   monospaced field.
-5. **Reads the designated code requirement, signing identity, and Team ID**
+4. **Summarizes deployment details** including architecture, minimum macOS,
+   install and modification dates, distribution source, and quarantine status.
+5. **Shows and copies key identifiers and paths**: version and build number,
+   bundle identifier, application path, and app icon path.
+6. **Exports the selected app's icon** as a PNG file.
+7. **Reads the designated code requirement, signing identity, and Team ID**
    directly from macOS's code-signing services.
-6. **Copies only on request.** Each available detail has its own Copy button;
+8. **Copies only on request.** Each available detail has its own Copy button;
    selecting an app never overwrites the clipboard.
-7. **Reveals or opens the selected app** directly from Bundle Report.
-8. **Keeps Utility apps hidden by default** to keep the list focused. Turn on
+9. **Reveals or opens the selected app** directly from Bundle Report.
+10. **Keeps Utility apps hidden by default** to keep the list focused. Turn on
    **Show Utility Apps** whenever you need to include them.
-9. **Works from either the main window or the menu bar**, so the app is close
+11. **Works from either the main window or the menu bar**, so the app is close
    at hand during policy, scripting, support, or device-management work.
 
 ## Requirements
