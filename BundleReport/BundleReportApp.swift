@@ -8,15 +8,8 @@ struct BundleReportApp: App {
         WindowGroup {
             BundleReportView()
                 .environmentObject(catalog)
-                .frame(minWidth: 660, minHeight: 500)
+                .frame(minWidth: 940, minHeight: 620)
         }
-        .defaultSize(width: 760, height: 580)
-
-        MenuBarExtra("Bundle Report", systemImage: "shippingbox.fill") {
-            BundleReportView(compact: true)
-                .environmentObject(catalog)
-                .frame(width: 460, height: 540)
-        }
-        .menuBarExtraStyle(.window)
+        .defaultSize(width: 1_060, height: 720)
     }
 }

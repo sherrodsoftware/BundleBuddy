@@ -7,11 +7,6 @@ struct BundleReportView: View {
     @AppStorage("showUtilityApps") private var showUtilityApps = false
     @State private var searchText = ""
     @State private var selection: InstalledApp?
-    let compact: Bool
-
-    init(compact: Bool = false) {
-        self.compact = compact
-    }
 
     private var filteredApps: [InstalledApp] {
         let userFacingApps = showUtilityApps
@@ -38,7 +33,7 @@ struct BundleReportView: View {
                 }
             }
             .searchable(text: $searchText, prompt: "Search applications or identifiers")
-            .navigationSplitViewColumnWidth(min: compact ? 240 : 280, ideal: compact ? 300 : 340)
+            .navigationSplitViewColumnWidth(min: 280, ideal: 340)
         } detail: {
             if let selection {
                 DetailView(app: selection)
@@ -46,7 +41,7 @@ struct BundleReportView: View {
                 ContentUnavailableView(
                     "Choose an Application",
                     systemImage: "shippingbox",
-                    description: Text("Select an installed app to see its bundle identifier.")
+                    description: Text("Select an installed app to inspect its bundle, signing, and related files.")
                 )
             }
         }
@@ -187,7 +182,7 @@ private struct DetailView: View {
                         )
                     }
                 }
-                .frame(maxWidth: 560)
+                .frame(maxWidth: 596)
 
             }
             .padding(28)
