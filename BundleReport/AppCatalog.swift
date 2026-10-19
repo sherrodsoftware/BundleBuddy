@@ -81,6 +81,41 @@ struct CodeSigningInfo: Sendable {
     }
 }
 
+struct RelatedFile: Identifiable, Hashable, Sendable {
+    let url: URL
+    let reason: String
+    let sizeOnDisk: Int64?
+
+    var id: URL { url }
+}
+
+enum RelatedFileFinder {
+    static func discover(for app: InstalledApp) -> [RelatedFile] {
+        guard let bundleIdentifier = app.bundleIdentifier, !bundleIdentifier.isEmpty else {
+            return []
+        }
+
+        let manager = FileManager.default
+        let libraryURL = manager.homeDirectoryForCurrentUser.appendingPathComponent("Library", isDirectory: true)
+        let candidates: [(URL, String)] = [
+            (libraryURL.appendingPathComponent("Containers/\(bundleIdentifier)", isDirectory: true), "Sandbox container"),
+            (libraryURL.appendingPathComponent("Application Scripts/\(bundleIdentifier)", isDirectory: true), "Application scripts"),
+            (libraryURL.appendingPathComponent("Application Support/\(bundleIdentifier)", isDirectory: true), "Application support"),
+            (libraryURL.appendingPathComponent("Caches/\(bundleIdentifier)", isDirectory: true), "Cache"),
+            (libraryURL.appendingPathComponent("Logs/\(bundleIdentifier)", isDirectory: true), "Log files"),
+            (libraryURL.appendingPathComponent("Preferences/\(bundleIdentifier).plist"), "Preference file"),
+            (libraryURL.appendingPathComponent("Saved Application State/\(bundleIdentifier).savedState", isDirectory: true), "Saved app state"),
+            (URL(fileURLWithPath: "/Library/Application Support", isDirectory: true)
+                .appendingPathComponent(bundleIdentifier, isDirectory: true), "System-wide application support")
+        ]
+
+        return candidates.compactMap { url, reason in
+            guard manager.fileExists(atPath: url.path) else { return nil }
+            return RelatedFile(url: url, reason: reason, sizeOnDisk: AppCatalog.appSize(at: url))
+        }
+    }
+}
+
 @MainActor
 final class AppCatalog: ObservableObject {
     @Published private(set) var apps: [InstalledApp] = []
@@ -199,6 +234,36 @@ final class AppCatalog: ObservableObject {
             .filter { $0.pathExtension.localizedCaseInsensitiveCompare("icns") == .orderedSame }
             .sorted { $0.lastPathComponent.localizedStandardCompare($1.lastPathComponent) == .orderedAscending }
             .first
+    }
+
+    nonisolated static func appSize(at appURL: URL) -> Int64? {
+        let manager = FileManager.default
+        if let values = try? appURL.resourceValues(forKeys: [.isRegularFileKey, .totalFileAllocatedSizeKey, .fileAllocatedSizeKey]),
+           values.isRegularFile == true {
+            return (values.totalFileAllocatedSize ?? values.fileAllocatedSize).map(Int64.init)
+        }
+
+        guard let enumerator = manager.enumerator(
+            at: appURL,
+            includingPropertiesForKeys: [.isRegularFileKey, .totalFileAllocatedSizeKey, .fileAllocatedSizeKey],
+            options: []
+        ) else {
+            return nil
+        }
+
+        var size: Int64 = 0
+        for case let fileURL as URL in enumerator {
+            guard let values = try? fileURL.resourceValues(forKeys: [.isRegularFileKey, .totalFileAllocatedSizeKey, .fileAllocatedSizeKey]),
+                  values.isRegularFile == true else {
+                continue
+            }
+
+            if let fileSize = values.totalFileAllocatedSize ?? values.fileAllocatedSize {
+                size += Int64(fileSize)
+            }
+        }
+
+        return size
     }
 
     nonisolated private static func isQuarantined(_ url: URL) -> Bool {
