@@ -143,7 +143,6 @@ private struct DetailView: View {
                         fieldID: "appIconPath",
                         sizeOnDisk: iconFileSizeOnDisk,
                         isCalculatingSize: isCalculatingSizes && app.iconFileURL != nil,
-                        revealURL: app.iconFileURL,
                         copiedField: $copiedField
                     )
 
@@ -431,10 +430,6 @@ private struct AppIdentityCard: View {
         guard savePanel.runModal() == .OK, let destinationURL = savePanel.url else { return }
 
         do {
-            let manager = FileManager.default
-            if manager.fileExists(atPath: destinationURL.path) {
-                try manager.removeItem(at: destinationURL)
-            }
             let image = NSWorkspace.shared.icon(forFile: app.url.path)
             guard let tiffData = image.tiffRepresentation,
                   let bitmap = NSBitmapImageRep(data: tiffData),
