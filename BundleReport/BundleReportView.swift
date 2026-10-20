@@ -5,13 +5,17 @@ import UniformTypeIdentifiers
 struct BundleReportView: View {
     @EnvironmentObject private var catalog: AppCatalog
     @AppStorage("showUtilityApps") private var showUtilityApps = false
+    @AppStorage("showAppleDefaultApps") private var showAppleDefaultApps = true
+    @AppStorage("showPersonalApps") private var showPersonalApps = true
     @State private var searchText = ""
     @State private var selection: InstalledApp?
 
     private var filteredApps: [InstalledApp] {
-        let userFacingApps = showUtilityApps
-            ? catalog.apps
-            : catalog.apps.filter { !isUtilityApp($0) }
+        let userFacingApps = catalog.apps.filter { app in
+            (showUtilityApps || !isUtilityApp(app)) &&
+            (showAppleDefaultApps || !isAppleDefaultApp(app)) &&
+            (showPersonalApps || !isPersonalApp(app))
+        }
 
         guard !searchText.isEmpty else { return userFacingApps }
         return userFacingApps.filter {
@@ -26,13 +30,17 @@ struct BundleReportView: View {
                 AppRow(app: app).tag(app)
             }
             .overlay {
-                if catalog.isScanning {
+                if catalog.isScanning && catalog.apps.isEmpty {
                     ProgressView("Finding applications…")
                 } else if filteredApps.isEmpty {
                     ContentUnavailableView.search(text: searchText)
                 }
             }
-            .searchable(text: $searchText, prompt: "Search applications or identifiers")
+            .searchable(
+                text: $searchText,
+                placement: .sidebar,
+                prompt: "Search applications or identifiers"
+            )
             .navigationSplitViewColumnWidth(min: 280, ideal: 340)
         } detail: {
             if let selection {
@@ -50,16 +58,38 @@ struct BundleReportView: View {
                 Button { catalog.refresh() } label: {
                     Label("Refresh Applications", systemImage: "arrow.clockwise")
                 }
+                .help("Refresh installed applications and the selected app's details")
                 .disabled(catalog.isScanning)
             }
             ToolbarItem {
-                Toggle(isOn: $showUtilityApps) {
-                    Label("Show Utility Apps", systemImage: "wrench.and.screwdriver")
+                ControlGroup {
+                    visibilityToggle(
+                        "Utilities Apps",
+                        systemImage: "wrench.and.screwdriver",
+                        symbolSize: 12,
+                        isOn: $showUtilityApps
+                    )
+                    visibilityToggle(
+                        "Default Apple Apps",
+                        systemImage: "apple.logo",
+                        symbolSize: 15,
+                        isOn: $showAppleDefaultApps
+                    )
+                    visibilityToggle(
+                        "Apps in Your Applications Folder",
+                        systemImage: "person.crop.circle",
+                        symbolSize: 15,
+                        isOn: $showPersonalApps
+                    )
                 }
             }
         }
-        .onChange(of: catalog.apps) { _, _ in
-            if selection == nil, let first = filteredApps.first { selection = first }
+        .onChange(of: catalog.apps) { _, apps in
+            if let selectedURL = selection?.url {
+                selection = apps.first { $0.url == selectedURL }
+            } else if let first = filteredApps.first {
+                selection = first
+            }
         }
     }
 
@@ -67,6 +97,39 @@ struct BundleReportView: View {
         let path = app.url.standardized.path
         return path.contains("/Applications/Utilities/") ||
             path.contains("/System/Applications/Utilities/")
+    }
+
+    private func isAppleDefaultApp(_ app: InstalledApp) -> Bool {
+        app.url.standardized.path.hasPrefix("/System/Applications/")
+    }
+
+    private func isPersonalApp(_ app: InstalledApp) -> Bool {
+        app.url.standardized.path.hasPrefix("\(NSHomeDirectory())/Applications/")
+    }
+
+    @ViewBuilder
+    private func visibilityToggle(
+        _ title: String,
+        systemImage: String,
+        symbolSize: CGFloat,
+        isOn: Binding<Bool>
+    ) -> some View {
+        Button {
+            isOn.wrappedValue.toggle()
+        } label: {
+            Image(systemName: systemImage)
+                .font(.system(size: symbolSize, weight: .medium))
+                .frame(width: 16, height: 16)
+                .foregroundStyle(isOn.wrappedValue ? .white : .primary)
+        }
+        .buttonStyle(.borderless)
+        .frame(width: 32, height: 32)
+        .background(isOn.wrappedValue ? Color.accentColor : .clear, in: Circle())
+        .contentShape(Circle())
+        .help(isOn.wrappedValue ? "Hide \(title)" : "Show \(title)")
+        .accessibilityLabel(title)
+        .accessibilityValue(isOn.wrappedValue ? "Shown" : "Hidden")
+        .accessibilityAddTraits(isOn.wrappedValue ? .isSelected : [])
     }
 }
 
@@ -98,6 +161,14 @@ private struct DetailView: View {
     @State private var iconFileSizeOnDisk: Int64?
     @State private var isCalculatingSizes = false
     @State private var copiedField: String?
+    @AppStorage(DetailFieldPreference.version) private var showVersion = true
+    @AppStorage(DetailFieldPreference.bundleIdentifier) private var showBundleIdentifier = true
+    @AppStorage(DetailFieldPreference.appPath) private var showAppPath = true
+    @AppStorage(DetailFieldPreference.appIconPath) private var showAppIconPath = true
+    @AppStorage(DetailFieldPreference.relatedFiles) private var showRelatedFiles = true
+    @AppStorage(DetailFieldPreference.codeRequirement) private var showCodeRequirement = true
+    @AppStorage(DetailFieldPreference.signingIdentity) private var showSigningIdentity = true
+    @AppStorage(DetailFieldPreference.teamIdentifier) private var showTeamIdentifier = true
 
     var body: some View {
         ScrollView {
@@ -109,46 +180,56 @@ private struct DetailView: View {
                 )
 
                 VStack(spacing: 14) {
-                    DetailField(
-                        title: "Version",
-                        value: app.versionDescription,
-                        unavailableMessage: "This application does not declare a version.",
-                        fieldID: "version",
-                        copiedField: $copiedField
-                    )
+                    if showVersion {
+                        DetailField(
+                            title: "Version",
+                            value: app.versionDescription,
+                            unavailableMessage: "This application does not declare a version.",
+                            fieldID: "version",
+                            copiedField: $copiedField
+                        )
+                    }
 
-                    DetailField(
-                        title: "Bundle Identifier",
-                        value: app.bundleIdentifier,
-                        unavailableMessage: "This application does not declare a bundle identifier.",
-                        fieldID: "bundleIdentifier",
-                        copiedField: $copiedField
-                    )
+                    if showBundleIdentifier {
+                        DetailField(
+                            title: "Bundle Identifier",
+                            value: app.bundleIdentifier,
+                            unavailableMessage: "This application does not declare a bundle identifier.",
+                            fieldID: "bundleIdentifier",
+                            copiedField: $copiedField
+                        )
+                    }
 
-                    DetailField(
-                        title: "App Path",
-                        value: app.url.path,
-                        unavailableMessage: "The application path is unavailable.",
-                        fieldID: "appPath",
-                        sizeOnDisk: appSizeOnDisk,
-                        isCalculatingSize: isCalculatingSizes,
-                        revealURL: app.url,
-                        copiedField: $copiedField
-                    )
+                    if showAppPath {
+                        DetailField(
+                            title: "App Path",
+                            value: app.url.path,
+                            unavailableMessage: "The application path is unavailable.",
+                            fieldID: "appPath",
+                            sizeOnDisk: appSizeOnDisk,
+                            isCalculatingSize: isCalculatingSizes,
+                            revealURL: app.url,
+                            copiedField: $copiedField
+                        )
+                    }
 
-                    DetailField(
-                        title: "App Icon Path",
-                        value: app.iconFileURL?.path,
-                        unavailableMessage: "This application does not provide a standalone icon file.",
-                        fieldID: "appIconPath",
-                        sizeOnDisk: iconFileSizeOnDisk,
-                        isCalculatingSize: isCalculatingSizes && app.iconFileURL != nil,
-                        copiedField: $copiedField
-                    )
+                    if showAppIconPath {
+                        DetailField(
+                            title: "App Icon Path",
+                            value: app.iconFileURL?.path,
+                            unavailableMessage: "This application does not provide a standalone icon file.",
+                            fieldID: "appIconPath",
+                            sizeOnDisk: iconFileSizeOnDisk,
+                            isCalculatingSize: isCalculatingSizes && app.iconFileURL != nil,
+                            copiedField: $copiedField
+                        )
+                    }
 
-                    RelatedFilesSection(app: app)
+                    if showRelatedFiles {
+                        RelatedFilesSection(app: app)
+                    }
 
-                    if isLoadingSigningInfo {
+                    if isLoadingSigningInfo && hasVisibleSigningFields {
                         HStack(spacing: 8) {
                             ProgressView()
                             Text("Reading code signature…")
@@ -156,29 +237,35 @@ private struct DetailView: View {
                         }
                         .frame(maxWidth: .infinity, alignment: .leading)
                     } else {
-                        DetailField(
-                            title: "Code Requirement",
-                            value: signingInfo?.requirement,
-                            unavailableMessage: "No designated code requirement is available.",
-                            fieldID: "codeRequirement",
-                            copiedField: $copiedField
-                        )
+                        if showCodeRequirement {
+                            DetailField(
+                                title: "Code Requirement",
+                                value: signingInfo?.requirement,
+                                unavailableMessage: "No designated code requirement is available.",
+                                fieldID: "codeRequirement",
+                                copiedField: $copiedField
+                            )
+                        }
 
-                        DetailField(
-                            title: "Signing Identity",
-                            value: signingInfo?.signingIdentity,
-                            unavailableMessage: "No signing identity is available.",
-                            fieldID: "signingIdentity",
-                            copiedField: $copiedField
-                        )
+                        if showSigningIdentity {
+                            DetailField(
+                                title: "Signing Identity",
+                                value: signingInfo?.signingIdentity,
+                                unavailableMessage: "No signing identity is available.",
+                                fieldID: "signingIdentity",
+                                copiedField: $copiedField
+                            )
+                        }
 
-                        DetailField(
-                            title: "Team ID",
-                            value: signingInfo?.teamIdentifier,
-                            unavailableMessage: "No Team ID is available.",
-                            fieldID: "teamIdentifier",
-                            copiedField: $copiedField
-                        )
+                        if showTeamIdentifier {
+                            DetailField(
+                                title: "Team ID",
+                                value: signingInfo?.teamIdentifier,
+                                unavailableMessage: "No Team ID is available.",
+                                fieldID: "teamIdentifier",
+                                copiedField: $copiedField
+                            )
+                        }
                     }
                 }
                 .frame(maxWidth: 596)
@@ -186,7 +273,8 @@ private struct DetailView: View {
             }
             .padding(28)
         }
-        .task(id: app.id) {
+        .task(id: app) {
+            copiedField = nil
             isLoadingSigningInfo = true
             signingInfo = nil
             let result = await Task.detached(priority: .userInitiated) {
@@ -196,7 +284,7 @@ private struct DetailView: View {
             signingInfo = result
             isLoadingSigningInfo = false
         }
-        .task(id: app.id) {
+        .task(id: app) {
             isCalculatingSizes = true
             appSizeOnDisk = nil
             iconFileSizeOnDisk = nil
@@ -211,6 +299,10 @@ private struct DetailView: View {
             iconFileSizeOnDisk = sizes.1
             isCalculatingSizes = false
         }
+    }
+
+    private var hasVisibleSigningFields: Bool {
+        showCodeRequirement || showSigningIdentity || showTeamIdentifier
     }
 
 }
@@ -264,7 +356,7 @@ private struct RelatedFilesSection: View {
             }
         }
         .background(.quaternary, in: RoundedRectangle(cornerRadius: 10))
-        .task(id: app.id) {
+        .task(id: app) {
             await findRelatedFiles()
         }
     }
@@ -424,13 +516,15 @@ private struct AppIdentityCard: View {
         let savePanel = NSSavePanel()
         savePanel.title = "Export App Icon"
         savePanel.nameFieldStringValue = "\(app.name).png"
+        savePanel.directoryURL = FileManager.default.urls(for: .downloadsDirectory, in: .userDomainMask).first
         savePanel.allowedContentTypes = [.png]
         savePanel.canCreateDirectories = true
 
         guard savePanel.runModal() == .OK, let destinationURL = savePanel.url else { return }
 
         do {
-            let image = NSWorkspace.shared.icon(forFile: app.url.path)
+            let image = app.iconFileURL.flatMap { NSImage(contentsOf: $0) }
+                ?? NSWorkspace.shared.icon(forFile: app.url.path)
             guard let tiffData = image.tiffRepresentation,
                   let bitmap = NSBitmapImageRep(data: tiffData),
                   let pngData = bitmap.representation(using: .png, properties: [:]) else {

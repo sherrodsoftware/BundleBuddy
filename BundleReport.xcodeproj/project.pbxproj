@@ -11,6 +11,7 @@
 		A102 /* AppCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = A202 /* AppCatalog.swift */; };
 		A103 /* BundleReportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A203 /* BundleReportView.swift */; };
 		A104 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A204 /* Assets.xcassets */; };
+		A105 /* AppIcon.icon in Resources */ = {isa = PBXBuildFile; fileRef = A206 /* AppIcon.icon */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -19,6 +20,7 @@
 		A203 /* BundleReportView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BundleReportView.swift; sourceTree = "<group>"; };
 		A204 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		A205 /* Bundle Report.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Bundle Report.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		A206 /* AppIcon.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = AppIcon.icon; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -35,6 +37,7 @@
 		A401 = {
 			isa = PBXGroup;
 			children = (
+				A206 /* AppIcon.icon */,
 				A402 /* BundleReport */,
 				A403 /* Products */,
 			);
@@ -117,6 +120,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A105 /* AppIcon.icon in Resources */,
 				A104 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -172,7 +176,7 @@
 				AUTOMATION_APPLE_EVENTS = NO;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 4;
+				CURRENT_PROJECT_VERSION = 15;
 				DEVELOPMENT_TEAM = LAR9U97K23;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_RESOURCE_ACCESS_AUDIO_INPUT = NO;
@@ -184,7 +188,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = "Bundle Report";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
-				MARKETING_VERSION = 2026.10.19;
+				MARKETING_VERSION = 2026.10.20;
 				PRODUCT_BUNDLE_IDENTIFIER = com.sherrodsoftware.BundleReport;
 				PRODUCT_NAME = "Bundle Report";
 				RUNTIME_EXCEPTION_ALLOW_DYLD_ENVIRONMENT_VARIABLES = NO;
@@ -205,7 +209,7 @@
 				AUTOMATION_APPLE_EVENTS = NO;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 4;
+				CURRENT_PROJECT_VERSION = 15;
 				DEVELOPMENT_TEAM = LAR9U97K23;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_RESOURCE_ACCESS_AUDIO_INPUT = NO;
@@ -217,7 +221,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = "Bundle Report";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
-				MARKETING_VERSION = 2026.10.19;
+				MARKETING_VERSION = 2026.10.20;
 				PRODUCT_BUNDLE_IDENTIFIER = com.sherrodsoftware.BundleReport;
 				PRODUCT_NAME = "Bundle Report";
 				RUNTIME_EXCEPTION_ALLOW_DYLD_ENVIRONMENT_VARIABLES = NO;

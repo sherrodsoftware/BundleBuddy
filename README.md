@@ -29,10 +29,10 @@ your Mac, then review and copy the details you need—no Terminal required.
 8. **Copies only on request.** Each available detail has its own Copy button;
    selecting an app never overwrites the clipboard.
 9. **Reveals or opens the selected app** directly from Bundle Report.
-10. **Keeps Utility apps hidden by default** to keep the list focused. Turn on
-   **Show Utility Apps** whenever you need to include them.
-11. **Works from either the main window or the menu bar**, so the app is close
-   at hand during policy, scripting, support, or device-management work.
+10. **Keeps Utilities apps hidden by default** to keep the list focused, with
+    optional filters for default Apple apps and apps in `~/Applications`.
+11. **Lets you choose which detail fields to display** in Settings, so the
+    report can stay focused on the information you use.
 
 ## Requirements
 
