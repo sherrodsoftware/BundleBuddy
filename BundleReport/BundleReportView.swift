@@ -54,33 +54,70 @@ struct BundleReportView: View {
             }
         }
         .toolbar {
-            ToolbarItem {
-                Button { catalog.refresh() } label: {
-                    Label("Refresh Applications", systemImage: "arrow.clockwise")
-                }
-                .help("Refresh installed applications and the selected app's details")
-                .disabled(catalog.isScanning)
-            }
-            ToolbarItem {
+            ToolbarItem(placement: .automatic) {
                 ControlGroup {
-                    visibilityToggle(
-                        "Utilities Apps",
-                        systemImage: "wrench.and.screwdriver",
-                        symbolSize: 12,
-                        isOn: $showUtilityApps
-                    )
-                    visibilityToggle(
-                        "Default Apple Apps",
-                        systemImage: "apple.logo",
-                        symbolSize: 15,
-                        isOn: $showAppleDefaultApps
-                    )
-                    visibilityToggle(
-                        "Apps in Your Applications Folder",
-                        systemImage: "person.crop.circle",
-                        symbolSize: 15,
-                        isOn: $showPersonalApps
-                    )
+                    Button { catalog.refresh() } label: {
+                        Label("Refresh Applications", systemImage: "arrow.clockwise")
+                    }
+                    .help("Refresh installed applications and the selected app's details")
+                    .disabled(catalog.isScanning)
+                }
+            }
+
+            ToolbarItem(placement: .automatic) {
+                ControlGroup {
+                    Button {
+                        guard let app = selection else { return }
+                        exportIcon(for: app)
+                    } label: {
+                        Label("Export Icon…", systemImage: "square.and.arrow.down")
+                    }
+                    .help("Export the app's icon as a PNG file")
+                    .disabled(selection == nil)
+
+                    Button {
+                        guard let app = selection else { return }
+                        NSWorkspace.shared.activateFileViewerSelecting([app.url])
+                    } label: {
+                        Label("Reveal in Finder", systemImage: "folder")
+                    }
+                    .help("Reveal in Finder")
+                    .disabled(selection == nil)
+
+                    Button {
+                        guard let app = selection else { return }
+                        NSWorkspace.shared.openApplication(at: app.url, configuration: .init())
+                    } label: {
+                        Label("Open", systemImage: "arrow.up.forward.app")
+                    }
+                    .help("Open application")
+                    .disabled(selection == nil)
+                }
+            }
+
+            ToolbarItem(placement: .automatic) {
+                ControlGroup {
+                    Button {
+                        showUtilityApps.toggle()
+                    } label: {
+                        Label("Utility Apps", systemImage: showUtilityApps ? "wrench.and.screwdriver.fill" : "wrench.and.screwdriver")
+                    }
+                    .help(showUtilityApps ? "Hide Utility Apps" : "Show Utility Apps")
+                    .symbolRenderingMode(.monochrome)
+
+                    Button {
+                        showAppleDefaultApps.toggle()
+                    } label: {
+                        Label("Default Apple Apps", systemImage: "apple.logo")
+                    }
+                    .help(showAppleDefaultApps ? "Hide Default Apple Apps" : "Show Default Apple Apps")
+
+                    Button {
+                        showPersonalApps.toggle()
+                    } label: {
+                        Label("Apps in Your Applications Folder", systemImage: showPersonalApps ? "person.crop.circle.fill" : "person.crop.circle")
+                    }
+                    .help(showPersonalApps ? "Hide Apps in Your Applications Folder" : "Show Apps in Your Applications Folder")
                 }
             }
         }
@@ -107,29 +144,32 @@ struct BundleReportView: View {
         app.url.standardized.path.hasPrefix("\(NSHomeDirectory())/Applications/")
     }
 
-    @ViewBuilder
-    private func visibilityToggle(
-        _ title: String,
-        systemImage: String,
-        symbolSize: CGFloat,
-        isOn: Binding<Bool>
-    ) -> some View {
-        Button {
-            isOn.wrappedValue.toggle()
-        } label: {
-            Image(systemName: systemImage)
-                .font(.system(size: symbolSize, weight: .medium))
-                .frame(width: 16, height: 16)
-                .foregroundStyle(isOn.wrappedValue ? .white : .primary)
+    private func exportIcon(for app: InstalledApp) {
+        let savePanel = NSSavePanel()
+        savePanel.title = "Export App Icon"
+        savePanel.nameFieldStringValue = "\(app.name).png"
+        savePanel.directoryURL = FileManager.default.urls(for: .downloadsDirectory, in: .userDomainMask).first
+        savePanel.allowedContentTypes = [.png]
+        savePanel.canCreateDirectories = true
+
+        guard savePanel.runModal() == .OK, let destinationURL = savePanel.url else { return }
+
+        do {
+            let image = app.iconFileURL.flatMap { NSImage(contentsOf: $0) }
+                ?? NSWorkspace.shared.icon(forFile: app.url.path)
+            guard let tiffData = image.tiffRepresentation,
+                  let bitmap = NSBitmapImageRep(data: tiffData),
+                  let pngData = bitmap.representation(using: .png, properties: [:]) else {
+                throw NSError(
+                    domain: "BundleReport",
+                    code: 1,
+                    userInfo: [NSLocalizedDescriptionKey: "The app icon could not be converted to PNG."]
+                )
+            }
+            try pngData.write(to: destinationURL)
+        } catch {
+            NSAlert(error: error).runModal()
         }
-        .buttonStyle(.borderless)
-        .frame(width: 32, height: 32)
-        .background(isOn.wrappedValue ? Color.accentColor : .clear, in: Circle())
-        .contentShape(Circle())
-        .help(isOn.wrappedValue ? "Hide \(title)" : "Show \(title)")
-        .accessibilityLabel(title)
-        .accessibilityValue(isOn.wrappedValue ? "Shown" : "Hidden")
-        .accessibilityAddTraits(isOn.wrappedValue ? .isSelected : [])
     }
 }
 
@@ -225,10 +265,6 @@ private struct DetailView: View {
                         )
                     }
 
-                    if showRelatedFiles {
-                        RelatedFilesSection(app: app)
-                    }
-
                     if isLoadingSigningInfo && hasVisibleSigningFields {
                         HStack(spacing: 8) {
                             ProgressView()
@@ -266,6 +302,10 @@ private struct DetailView: View {
                                 copiedField: $copiedField
                             )
                         }
+                    }
+
+                    if showRelatedFiles {
+                        RelatedFilesSection(app: app)
                     }
                 }
                 .frame(maxWidth: 596)
@@ -314,7 +354,7 @@ private struct RelatedFilesSection: View {
     @State private var copiedURL: URL?
 
     var body: some View {
-        VStack(spacing: 0) {
+        VStack(alignment: .leading, spacing: 8) {
             HStack {
                 Text("Related Files")
                     .font(.headline)
@@ -323,39 +363,37 @@ private struct RelatedFilesSection: View {
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
-            .padding(.horizontal, 14)
-            .padding(.vertical, 12)
 
-            Divider()
-
-            if isSearching {
-                HStack(spacing: 8) {
-                    ProgressView()
-                    Text("Searching common app-data locations…")
-                        .foregroundStyle(.secondary)
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(14)
-            } else if relatedFiles.isEmpty {
-                Text(app.bundleIdentifier == nil
-                    ? "A bundle identifier is required to find related files."
-                    : "No matching files were found in the common app-data locations.")
-                    .foregroundStyle(.secondary)
+            VStack(spacing: 0) {
+                if isSearching {
+                    HStack(spacing: 8) {
+                        ProgressView()
+                        Text("Searching common app-data locations…")
+                            .foregroundStyle(.secondary)
+                    }
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(14)
-            } else {
-                ForEach(Array(relatedFiles.enumerated()), id: \.element.id) { index, relatedFile in
-                    RelatedFileRow(relatedFile: relatedFile, copiedURL: $copiedURL)
+                } else if relatedFiles.isEmpty {
+                    Text(app.bundleIdentifier == nil
+                        ? "A bundle identifier is required to find related files."
+                        : "No matching files were found in the common app-data locations.")
+                        .foregroundStyle(.secondary)
+                        .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(14)
+                } else {
+                    ForEach(Array(relatedFiles.enumerated()), id: \.element.id) { index, relatedFile in
+                        RelatedFileRow(relatedFile: relatedFile, copiedURL: $copiedURL)
+                            .padding(14)
 
-                    if index < relatedFiles.count - 1 {
-                        Divider()
-                            .padding(.horizontal, 14)
+                        if index < relatedFiles.count - 1 {
+                            Divider()
+                                .padding(.horizontal, 14)
+                        }
                     }
                 }
             }
+            .background(.quaternary, in: RoundedRectangle(cornerRadius: 10))
         }
-        .background(.quaternary, in: RoundedRectangle(cornerRadius: 10))
         .task(id: app) {
             await findRelatedFiles()
         }
@@ -388,7 +426,8 @@ private struct RelatedFileRow: View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
                 Text(relatedFile.reason)
-                    .font(.headline)
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
                 Spacer()
                 Text(formattedSize(relatedFile.sizeOnDisk))
                     .font(.caption)
@@ -416,11 +455,9 @@ private struct RelatedFileRow: View {
             }
 
             Text(relatedFile.url.path)
-                .font(.system(.body, design: .monospaced))
+                .font(.body)
                 .textSelection(.enabled)
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(14)
-                .background(.background, in: RoundedRectangle(cornerRadius: 8))
         }
     }
 
@@ -441,37 +478,10 @@ private struct AppIdentityCard: View {
 
     var body: some View {
         HStack(alignment: .top, spacing: 18) {
-            VStack(spacing: 8) {
-                Image(nsImage: NSWorkspace.shared.icon(forFile: app.url.path))
-                    .resizable()
-                    .frame(width: 80, height: 80)
-                    .shadow(radius: 4, y: 2)
-
-                Button {
-                    exportIcon()
-                } label: {
-                    Label("Export Icon…", systemImage: "square.and.arrow.down")
-                        .frame(width: 100)
-                }
-                .controlSize(.small)
-
-                Button {
-                    NSWorkspace.shared.activateFileViewerSelecting([app.url])
-                } label: {
-                    Label("Reveal", systemImage: "folder")
-                        .frame(width: 100)
-                }
-                .controlSize(.small)
-
-                Button {
-                    NSWorkspace.shared.openApplication(at: app.url, configuration: .init())
-                } label: {
-                    Label("Open", systemImage: "arrow.up.forward.app")
-                        .frame(width: 100)
-                }
-                .controlSize(.small)
-
-            }
+            Image(nsImage: NSWorkspace.shared.icon(forFile: app.url.path))
+                .resizable()
+                .frame(width: 80, height: 80)
+                .shadow(radius: 4, y: 2)
 
             VStack(alignment: .leading, spacing: 14) {
                 Text(app.name)
@@ -510,34 +520,6 @@ private struct AppIdentityCard: View {
 
     private var sizeDescription: String {
         isCalculatingSize ? "Calculating…" : formattedSize(sizeOnDisk)
-    }
-
-    private func exportIcon() {
-        let savePanel = NSSavePanel()
-        savePanel.title = "Export App Icon"
-        savePanel.nameFieldStringValue = "\(app.name).png"
-        savePanel.directoryURL = FileManager.default.urls(for: .downloadsDirectory, in: .userDomainMask).first
-        savePanel.allowedContentTypes = [.png]
-        savePanel.canCreateDirectories = true
-
-        guard savePanel.runModal() == .OK, let destinationURL = savePanel.url else { return }
-
-        do {
-            let image = app.iconFileURL.flatMap { NSImage(contentsOf: $0) }
-                ?? NSWorkspace.shared.icon(forFile: app.url.path)
-            guard let tiffData = image.tiffRepresentation,
-                  let bitmap = NSBitmapImageRep(data: tiffData),
-                  let pngData = bitmap.representation(using: .png, properties: [:]) else {
-                throw NSError(
-                    domain: "BundleReport",
-                    code: 1,
-                    userInfo: [NSLocalizedDescriptionKey: "The app icon could not be converted to PNG."]
-                )
-            }
-            try pngData.write(to: destinationURL)
-        } catch {
-            NSAlert(error: error).runModal()
-        }
     }
 }
 
@@ -617,12 +599,10 @@ private struct DetailField: View {
             }
 
             Text(value ?? unavailableMessage)
-                .font(.system(.body, design: .monospaced))
+                .font(.body)
                 .foregroundStyle(value == nil ? .secondary : .primary)
                 .textSelection(.enabled)
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(14)
-                .background(.quaternary, in: RoundedRectangle(cornerRadius: 10))
         }
     }
 

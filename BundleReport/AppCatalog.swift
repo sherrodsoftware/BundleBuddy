@@ -129,14 +129,12 @@ final class AppCatalog: ObservableObject {
         guard !isScanning else { return }
         isScanning = true
 
-        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
-            let apps = Self.discoverApps()
-
-            Task { @MainActor in
-                guard let self else { return }
-                self.apps = apps
-                self.isScanning = false
-            }
+        Task {
+            let apps = await Task.detached(priority: .userInitiated) {
+                Self.discoverApps()
+            }.value
+            self.apps = apps
+            self.isScanning = false
         }
     }
 
@@ -154,27 +152,31 @@ final class AppCatalog: ObservableObject {
             ) else { continue }
 
             for case let url as URL in enumerator {
-                guard url.pathExtension.lowercased() == "app", let bundle = Bundle(url: url) else { continue }
-                let name = bundle.object(forInfoDictionaryKey: "CFBundleDisplayName") as? String
-                    ?? bundle.object(forInfoDictionaryKey: "CFBundleName") as? String
-                    ?? url.deletingPathExtension().lastPathComponent
-                let shortVersion = bundle.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String
-                let buildVersion = bundle.object(forInfoDictionaryKey: "CFBundleVersion") as? String
+                guard url.pathExtension.lowercased() == "app" else { continue }
+                // Read Info.plist directly — Bundle caches infoDictionary and returns stale
+                // data after an app update, so bypass it entirely.
+                let plistURL = url.appendingPathComponent("Contents/Info.plist")
+                guard let plistData = try? Data(contentsOf: plistURL),
+                      let info = try? PropertyListSerialization.propertyList(from: plistData, format: nil) as? [String: Any]
+                else { continue }
+                let name = url.deletingPathExtension().lastPathComponent
+                let shortVersion = info["CFBundleShortVersionString"] as? String
+                let buildVersion = info["CFBundleVersion"] as? String
                 let resourceValues = try? url.resourceValues(forKeys: [.creationDateKey, .contentModificationDateKey])
                 found[url] = InstalledApp(
                     url: url,
                     name: name,
-                    bundleIdentifier: bundle.bundleIdentifier,
+                    bundleIdentifier: info["CFBundleIdentifier"] as? String,
                     shortVersion: shortVersion,
                     buildVersion: buildVersion,
-                    architectures: architectures(for: bundle),
+                    architectures: architectures(at: url, info: info),
                     installationDate: resourceValues?.creationDate,
                     modificationDate: resourceValues?.contentModificationDate,
-                    minimumOSVersion: minimumOSVersion(for: bundle),
+                    minimumOSVersion: minimumOSVersion(from: info),
                     isAppStoreApp: manager.fileExists(atPath: url.appendingPathComponent("Contents/_MASReceipt/receipt").path),
-                    iconFileURL: iconFileURL(for: bundle),
+                    iconFileURL: iconFileURL(at: url, info: info),
                     isQuarantined: isQuarantined(url),
-                    copyright: bundle.object(forInfoDictionaryKey: "NSHumanReadableCopyright") as? String
+                    copyright: info["NSHumanReadableCopyright"] as? String
                 )
             }
         }
@@ -184,8 +186,8 @@ final class AppCatalog: ObservableObject {
         }
     }
 
-    nonisolated private static func minimumOSVersion(for bundle: Bundle) -> String? {
-        if let version = bundle.object(forInfoDictionaryKey: "LSMinimumSystemVersion") as? String {
+    nonisolated private static func minimumOSVersion(from info: [String: Any]) -> String? {
+        if let version = info["LSMinimumSystemVersion"] as? String {
             return version
         }
 
@@ -196,25 +198,26 @@ final class AppCatalog: ObservableObject {
         #else
         let architecture = ""
         #endif
-        let versions = bundle.object(forInfoDictionaryKey: "LSMinimumSystemVersionByArchitecture") as? [String: String]
+        let versions = info["LSMinimumSystemVersionByArchitecture"] as? [String: String]
         return versions?[architecture]
     }
 
-    nonisolated private static func architectures(for bundle: Bundle) -> String? {
-        guard let executableURL = bundle.executableURL,
-              let data = try? Data(contentsOf: executableURL, options: .mappedIfSafe) else {
+    nonisolated private static func architectures(at bundleURL: URL, info: [String: Any]) -> String? {
+        guard let executableName = info["CFBundleExecutable"] as? String, !executableName.isEmpty else {
             return nil
         }
-
+        let executableURL = bundleURL.appendingPathComponent("Contents/MacOS/\(executableName)")
+        guard let data = try? Data(contentsOf: executableURL, options: .mappedIfSafe) else {
+            return nil
+        }
         return MachOArchitectures.read(from: data)
     }
 
-    nonisolated private static func iconFileURL(for bundle: Bundle) -> URL? {
-        guard let resourcesURL = bundle.resourceURL else { return nil }
+    nonisolated private static func iconFileURL(at bundleURL: URL, info: [String: Any]) -> URL? {
+        let resourcesURL = bundleURL.appendingPathComponent("Contents/Resources")
         let manager = FileManager.default
 
-        if let iconFile = bundle.object(forInfoDictionaryKey: "CFBundleIconFile") as? String,
-           !iconFile.isEmpty {
+        if let iconFile = info["CFBundleIconFile"] as? String, !iconFile.isEmpty {
             let filename = iconFile.hasSuffix(".icns") ? iconFile : "\(iconFile).icns"
             let iconURL = resourcesURL.appendingPathComponent(filename)
             if manager.fileExists(atPath: iconURL.path) {
@@ -274,7 +277,7 @@ final class AppCatalog: ObservableObject {
     }
 }
 
-private enum MachOArchitectures {
+enum MachOArchitectures {
     private static let fatMagic: UInt32 = 0xCAFE_BABE
     private static let fatCigam: UInt32 = 0xBEBA_FECA
     private static let fatMagic64: UInt32 = 0xCAFE_BABF

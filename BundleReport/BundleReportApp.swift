@@ -79,10 +79,10 @@ private struct BundleReportSettingsView: View {
                 Toggle("Bundle Identifier", isOn: $showBundleIdentifier)
                 Toggle("App Path", isOn: $showAppPath)
                 Toggle("App Icon Path", isOn: $showAppIconPath)
-                Toggle("Related Files", isOn: $showRelatedFiles)
                 Toggle("Code Requirement", isOn: $showCodeRequirement)
                 Toggle("Signing Identity", isOn: $showSigningIdentity)
                 Toggle("Team ID", isOn: $showTeamIdentifier)
+                Toggle("Related Files", isOn: $showRelatedFiles)
             }
         }
         .toggleStyle(.checkbox)
