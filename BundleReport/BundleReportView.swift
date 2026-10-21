@@ -202,6 +202,7 @@ private struct DetailView: View {
     @State private var isCalculatingSizes = false
     @State private var copiedField: String?
     @AppStorage(DetailFieldPreference.version) private var showVersion = true
+    @AppStorage(DetailFieldPreference.build) private var showBuild = true
     @AppStorage(DetailFieldPreference.bundleIdentifier) private var showBundleIdentifier = true
     @AppStorage(DetailFieldPreference.appPath) private var showAppPath = true
     @AppStorage(DetailFieldPreference.appIconPath) private var showAppIconPath = true
@@ -223,9 +224,19 @@ private struct DetailView: View {
                     if showVersion {
                         DetailField(
                             title: "Version",
-                            value: app.versionDescription,
+                            value: app.shortVersion,
                             unavailableMessage: "This application does not declare a version.",
                             fieldID: "version",
+                            copiedField: $copiedField
+                        )
+                    }
+
+                    if showBuild {
+                        DetailField(
+                            title: "Build",
+                            value: app.buildVersion,
+                            unavailableMessage: "This application does not declare a build number.",
+                            fieldID: "build",
                             copiedField: $copiedField
                         )
                     }

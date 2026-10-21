@@ -1,5 +1,16 @@
 # Changelog
 
+## Bundle Report 2026.10.21
+
+- Refresh now reflects updated app version numbers after an in-place app update.
+- App names now match how they appear in Finder.
+- Separated Version and Build into distinct fields, each copyable independently.
+- Moved Export Icon, Reveal in Finder, and Open to the toolbar.
+- Refined toolbar button layout into distinct grouped pods.
+- Moved Related Files to the bottom of the detail view.
+- Refined detail field appearance to better match macOS inspector conventions.
+- Improved Settings window layout.
+
 ## Bundle Report 2026.10.20
 
 - Added toolbar and View menu controls to show or hide Utilities apps, default Apple apps, and apps in your personal Applications folder.

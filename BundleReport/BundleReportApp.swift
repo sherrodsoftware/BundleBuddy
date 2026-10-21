@@ -49,6 +49,7 @@ struct BundleReportApp: App {
 
 enum DetailFieldPreference {
     static let version = "showVersionField"
+    static let build = "showBuildField"
     static let bundleIdentifier = "showBundleIdentifierField"
     static let appPath = "showAppPathField"
     static let appIconPath = "showAppIconPathField"
@@ -60,6 +61,7 @@ enum DetailFieldPreference {
 
 private struct BundleReportSettingsView: View {
     @AppStorage(DetailFieldPreference.version) private var showVersion = true
+    @AppStorage(DetailFieldPreference.build) private var showBuild = true
     @AppStorage(DetailFieldPreference.bundleIdentifier) private var showBundleIdentifier = true
     @AppStorage(DetailFieldPreference.appPath) private var showAppPath = true
     @AppStorage(DetailFieldPreference.appIconPath) private var showAppIconPath = true
@@ -69,24 +71,19 @@ private struct BundleReportSettingsView: View {
     @AppStorage(DetailFieldPreference.teamIdentifier) private var showTeamIdentifier = true
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            Text("Show these fields below the app card:")
-                .font(.headline)
-                .padding(.bottom, 16)
-
-            VStack(alignment: .leading, spacing: 10) {
-                Toggle("Version", isOn: $showVersion)
-                Toggle("Bundle Identifier", isOn: $showBundleIdentifier)
-                Toggle("App Path", isOn: $showAppPath)
-                Toggle("App Icon Path", isOn: $showAppIconPath)
-                Toggle("Code Requirement", isOn: $showCodeRequirement)
-                Toggle("Signing Identity", isOn: $showSigningIdentity)
-                Toggle("Team ID", isOn: $showTeamIdentifier)
-                Toggle("Related Files", isOn: $showRelatedFiles)
-            }
+        VStack(alignment: .leading, spacing: 10) {
+            Toggle("Version", isOn: $showVersion)
+            Toggle("Build", isOn: $showBuild)
+            Toggle("Bundle Identifier", isOn: $showBundleIdentifier)
+            Toggle("App Path", isOn: $showAppPath)
+            Toggle("App Icon Path", isOn: $showAppIconPath)
+            Toggle("Code Requirement", isOn: $showCodeRequirement)
+            Toggle("Signing Identity", isOn: $showSigningIdentity)
+            Toggle("Team ID", isOn: $showTeamIdentifier)
+            Toggle("Related Files", isOn: $showRelatedFiles)
         }
         .toggleStyle(.checkbox)
-        .frame(width: 360)
         .padding(24)
+        .frame(minWidth: 300)
     }
 }
